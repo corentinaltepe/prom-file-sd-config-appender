@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace PromFileSdConfigAppender
 {
@@ -6,7 +7,12 @@ namespace PromFileSdConfigAppender
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            using var provider = new ServiceCollection()
+                .AddLogging(conf => conf.AddConsole())
+                .BuildServiceProvider();
+
+            var logger = provider.GetService<ILogger<Program>>();
+            logger.LogInformation("Configuring Prometheus file service discovery...");
         }
     }
 }
