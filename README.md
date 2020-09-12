@@ -1,2 +1,2 @@
-# prom-file-sd-config-appender
-Command line utility to add / remove targets and jobs from Prometheus File Service Discovery targets.json
+# Prometheus File Service Discovery Configuration Appender
+Command line utility to add and remove targets and jobs from Prometheus File Service Discovery configuration file.
