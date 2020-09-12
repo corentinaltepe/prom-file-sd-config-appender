@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "PromFileSdConfigAppender": {
+      "commandName": "Project",
+      "commandLineArgs": "add --job node --target localhost:9100"
+    }
+  }
+}
