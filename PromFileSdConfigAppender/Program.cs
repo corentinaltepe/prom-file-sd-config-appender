@@ -1,6 +1,11 @@
 ﻿using CommandLine;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace PromFileSdConfigAppender
 {
@@ -19,12 +24,13 @@ namespace PromFileSdConfigAppender
 
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            Parser.Default.ParseArguments<AddOptions>(args).WithParsed(Add);
+            await Parser.Default.ParseArguments<AddOptions>(args)
+                .WithParsedAsync(Add).ConfigureAwait(false);
         }
 
-        static void Add(AddOptions options)
+        static async Task Add(AddOptions options)
         {
             using var provider = new ServiceCollection()
                 .AddLogging(conf => conf.AddConsole())
@@ -32,6 +38,37 @@ namespace PromFileSdConfigAppender
 
             var logger = provider.GetService<ILogger<Program>>();
             logger.LogInformation("Adding target to Prometheus file service discovery...");
+
+            var serializerOptions = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                AllowTrailingCommas = true,
+                ReadCommentHandling = JsonCommentHandling.Skip,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = true,
+            };
+            List<ConfigurationDto> configurations;
+            if(File.Exists(options.ConfigFilePath))
+            {
+                // Read the current configuration
+                var inputJson = await File.ReadAllTextAsync(options.ConfigFilePath).ConfigureAwait(false);
+                configurations = JsonSerializer.Deserialize<List<ConfigurationDto>>(inputJson, serializerOptions);
+            }
+            else
+            {
+                // If the files doesn't yet exist, create a new one
+                logger.LogInformation("No file {filepath} was found. It will be created.", options.ConfigFilePath);
+                configurations = new List<ConfigurationDto> {
+                    new ConfigurationDto
+                    {
+                        Targets = new List<string> { options.Target },
+                        Labels = new Dictionary<string, string> { { "job", options.Job } },
+                    }
+                };
+            }
+
+            var json = JsonSerializer.Serialize(configurations, serializerOptions);
+            await File.WriteAllTextAsync(options.ConfigFilePath, json).ConfigureAwait(false);
         }
     }
 }
