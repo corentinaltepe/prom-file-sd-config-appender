@@ -9,18 +9,7 @@ using System.Threading.Tasks;
 
 namespace PromFileSdConfigAppender
 {
-    [Verb("add", HelpText = "Add a target and job to the configuration file.")]
-    class AddOptions
-    {
-        [Option('j', "job", Required = true, HelpText = "Unique name of the job to which the target belongs.")]
-        public string Job { get; set; }
-
-        [Option('t', "target", Required = true, HelpText = "Target to be added.")]
-        public string Target { get; set; }
-
-        [Option('c', "config-path", Default = "targets.json", HelpText = "Path to the configuration file for Prometheus File SD.")]
-        public string ConfigFilePath { get; set; }
-    }
+    
 
     class Program
     {
@@ -41,8 +30,10 @@ namespace PromFileSdConfigAppender
 
             var logger = provider.GetService<ILogger<Program>>();
 
-            await Parser.Default.ParseArguments<AddOptions>(args)
-                .WithParsedAsync(o => provider.GetService<TargetAdder>().Add(o))
+            await Parser.Default.ParseArguments<AddOptions, RemoveOptions>(args)
+                .WithParsedAsync(
+                    o => provider.GetService<TargetAdder>().Add(o),
+                    )
                 .ConfigureAwait(false);
         }
     }
