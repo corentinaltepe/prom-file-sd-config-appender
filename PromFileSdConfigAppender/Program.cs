@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -58,15 +59,34 @@ namespace PromFileSdConfigAppender
             {
                 // If the files doesn't yet exist, create a new one
                 logger.LogInformation("No file {filepath} was found. It will be created.", options.ConfigFilePath);
-                configurations = new List<ConfigurationDto> {
-                    new ConfigurationDto
-                    {
-                        Targets = new List<string> { options.Target },
-                        Labels = new Dictionary<string, string> { { "job", options.Job } },
-                    }
-                };
+                configurations = new List<ConfigurationDto>();
             }
 
+            // Find the configuration with the right job or create it if it doesn't exist yet
+            var config = configurations.FirstOrDefault(c => c.Labels.ContainsKey("job") && c.Labels["job"] == options.Job);
+            if(config == null)
+            {
+                logger.LogInformation("Job {job} not found in config file. It will be created.", options.Job);
+                config = new ConfigurationDto
+                {
+                    Targets = new List<string>(),
+                    Labels = new Dictionary<string, string> { { "job", options.Job } },
+                };
+                configurations.Add(config);
+            }
+
+            // If the target already exist, do nothing
+            if(config.Targets.Contains(options.Target))
+            {
+                logger.LogInformation("The target {target} already exists with job {job}. The config file will not be overwrittent.",
+                    options.Target, options.Job);
+                return;
+            }
+
+            // Finally, add the target
+            config.Targets.Add(options.Target);
+
+            // Save the file
             var json = JsonSerializer.Serialize(configurations, serializerOptions);
             await File.WriteAllTextAsync(options.ConfigFilePath, json).ConfigureAwait(false);
         }
