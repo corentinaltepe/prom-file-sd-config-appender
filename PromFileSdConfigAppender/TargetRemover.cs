@@ -27,23 +27,42 @@ namespace PromFileSdConfigAppender
         /// <returns></returns>
         public async Task Remove(RemoveOptions options)
         {
-            _logger.LogInformation("Adding target to Prometheus file service discovery...");
+            _logger.LogInformation("Removing job and/or target from Prometheus file service discovery...");
             
             List<ConfigurationDto> configurations;
-            if (File.Exists(options.ConfigFilePath))
-            {
-                // Read the current configuration
-                var inputJson = await File.ReadAllTextAsync(options.ConfigFilePath).ConfigureAwait(false);
-                configurations = JsonSerializer.Deserialize<List<ConfigurationDto>>(inputJson, _serializerOptions);
-            }
-            else
+            if (!File.Exists(options.ConfigFilePath))
             {
                 // If the files doesn't yet exist, create a new one
-                _logger.LogInformation("No file {filepath} was found. It will be created.", options.ConfigFilePath);
-                configurations = new List<ConfigurationDto>();
+                _logger.LogInformation("No file {filepath} was found. Nothing to remove.", options.ConfigFilePath);
+                return;
             }
 
-            
+            // Read the current configuration
+            var inputJson = await File.ReadAllTextAsync(options.ConfigFilePath).ConfigureAwait(false);
+            configurations = JsonSerializer.Deserialize<List<ConfigurationDto>>(inputJson, _serializerOptions);
+
+            // Find the specified job
+            var job = configurations.FirstOrDefault(c => c.Labels.ContainsKey("job") && c.Labels["job"] == options.Job);
+            if(job is null)
+            {
+                _logger.LogInformation("Job {job} not found in configuration file. Nothing will be removed.", options.Job);
+                return;
+            }
+
+            if(options.Target != null)
+            {
+                // Find the specified target if any specified and remove it from the job configuration
+                var success = job.Targets.Remove(options.Target);
+                if (!success)
+                {
+                    _logger.LogInformation("Sepcified target {target} was not found in job {job}. Nothing will be removed.",
+                        options.Target, options.Job);
+                    return;
+                }
+            }
+            else
+                // Remove the full job configuration otherwise
+                configurations.Remove(job);
 
             // Save the file
             var json = JsonSerializer.Serialize(configurations, _serializerOptions);

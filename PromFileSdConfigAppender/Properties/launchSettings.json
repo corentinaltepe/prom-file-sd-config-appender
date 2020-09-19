@@ -2,7 +2,7 @@
   "profiles": {
     "PromFileSdConfigAppender": {
       "commandName": "Project",
-      "commandLineArgs": "add --job prom1 --target localhost:9102"
+      "commandLineArgs": "remove --job node --target \"localhost:9100\""
     }
   }
 }
