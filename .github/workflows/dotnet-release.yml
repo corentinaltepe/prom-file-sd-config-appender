@@ -50,6 +50,6 @@ jobs:
     
     # Publish as a dotnet tool
     - name: Pack Dotnet Tool
-      run: dotnet pack -p:PackageVersion=${{steps.vars.outputs.tag}}
+      run: dotnet pack -p:PackageVersion=${{steps.vars.outputs.tag:1}}
     - name: Push Dotnet Tool
-      run: dotnet nuget push PromFileSdConfigAppender/nupkg/PromFileSdConfigAppender.${{steps.vars.outputs.tag}}.nupkg --api-key ${{secrets.NUGET_TOKEN}} --source https://api.nuget.org/v3/index.json
+      run: dotnet nuget push PromFileSdConfigAppender/nupkg/PromFileSdConfigAppender.${{steps.vars.outputs.tag:1}}.nupkg --api-key ${{secrets.NUGET_TOKEN}} --source https://api.nuget.org/v3/index.json
