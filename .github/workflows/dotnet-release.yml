@@ -10,6 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Set output
+      id: vars
+      run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+    - name: Check output
+      env:
+        RELEASE_VERSION: ${{ steps.vars.outputs.tag }}
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
@@ -26,3 +32,4 @@ jobs:
       with:
         files: 'PromFileSdConfigAppender/bin/Release/netcoreapp3.1/linux-x64/publish/**/*'
         repo-token: ${{ secrets.GITHUB_TOKEN }}
+        release-tag: ${{ steps.vars.outputs.tag }}
