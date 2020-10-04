@@ -15,15 +15,15 @@ jobs:
       run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
     - name: Check output
       env:
-        RELEASE_VERSION: ${{ steps.vars.outputs.tag }}
+        RELEASE_VERSION: ${{steps.vars.outputs.tag}}
       run: |
         echo $RELEASE_VERSION
-        echo ${{ steps.vars.outputs.tag }}
+        echo ${{steps.vars.outputs.tag}}
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.402
-    - name: Install dependencies
+    - name: Install Dependencies
       run: dotnet restore
     - name: Publish for Linux
       run: dotnet publish -c Release -r linux-x64
@@ -33,17 +33,23 @@ jobs:
     # Zip binaries and add to the newly created release
     - uses: montudor/action-zip@v0.1.0
       with:
-        args: zip -qq -r linux-x64.selfcontained.${{ steps.vars.outputs.tag }}.zip PromFileSdConfigAppender/bin/Release/netcoreapp3.1/linux-x64/publish
+        args: zip -qq -r linux-x64.selfcontained.${{steps.vars.outputs.tag}}.zip PromFileSdConfigAppender/bin/Release/netcoreapp3.1/linux-x64/publish
     - uses: montudor/action-zip@v0.1.0
       with:
-        args: zip -qq -r win-x64.selfcontained.${{ steps.vars.outputs.tag }}.zip PromFileSdConfigAppender/bin/Release/netcoreapp3.1/win-x64/publish
+        args: zip -qq -r win-x64.selfcontained.${{steps.vars.outputs.tag}}.zip PromFileSdConfigAppender/bin/Release/netcoreapp3.1/win-x64/publish
     - uses: AButler/upload-release-assets@v2.0
       with:
-        files: 'linux-x64.selfcontained.${{ steps.vars.outputs.tag }}.zip'
+        files: 'linux-x64.selfcontained.${{steps.vars.outputs.tag}}.zip'
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         release-tag: ${{ steps.vars.outputs.tag }}    
     - uses: AButler/upload-release-assets@v2.0
       with:
-        files: 'win-x64.selfcontained.${{ steps.vars.outputs.tag }}.zip'
+        files: 'win-x64.selfcontained.${{steps.vars.outputs.tag}}.zip'
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         release-tag: ${{ steps.vars.outputs.tag }}
+    
+    # Publish as a dotnet tool
+    - name: Pack Dotnet Tool
+      run: dotnet pack -p:PackageVersion=${{steps.vars.outputs.tag}}
+    - name: Push Dotnet Tool
+      run: dotnet nuget push PromFileSdConfigAppender/nupkg/PromFileSdConfigAppender.${{steps.vars.outputs.tag}}.nupkg --api-key ${{secrets.NUGET_TOKEN}} --source https://api.nuget.org/v3/index.json
