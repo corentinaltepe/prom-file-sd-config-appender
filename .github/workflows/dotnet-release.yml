@@ -21,9 +21,9 @@ jobs:
     - name: Copy License
       run: cp LICENSE PromFileSdConfigAppender/LICENSE.txt
     - name: Publish for Linux
-      run: dotnet publish -c Release -r linux-x64
+      run: dotnet publish -c Release -r linux-x64 -p:Version=${{steps.get_version.outputs.version}} 
     - name: Publish for Windows
-      run: dotnet publish -c Release -r win-x64
+      run: dotnet publish -c Release -r win-x64 -p:Version=${{steps.get_version.outputs.version}} 
     
     # Zip binaries and add to the newly created release
     - uses: montudor/action-zip@v0.1.0
