@@ -36,12 +36,12 @@ jobs:
       with:
         files: 'linux-x64.selfcontained.${{steps.get_version.outputs.version}}.zip'
         repo-token: ${{secrets.GITHUB_TOKEN}}
-        release-tag: ${{steps.vars.outputs.tag}}    
+        release-tag: ${{steps.get_version.outputs.version}}    
     - uses: AButler/upload-release-assets@v2.0
       with:
         files: 'win-x64.selfcontained.${{steps.get_version.outputs.version}}.zip'
         repo-token: ${{secrets.GITHUB_TOKEN}}
-        release-tag: ${{steps.vars.outputs.tag}}
+        release-tag: ${{steps.get_version.outputs.version}}
     
     # Publish as a dotnet tool
     - name: Pack Dotnet Tool
