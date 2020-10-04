@@ -30,9 +30,12 @@ jobs:
     - name: Publish for Windows
       run: dotnet publish -c Release -r win-x64
     
-    # Add files to the newly created release
+    # Zip binaries and add to the newly created release
+    - uses: montudor/action-zip@v0.1.0
+      with:
+        args: zip -qq -r linux-x64.selfcontained.zip PromFileSdConfigAppender/bin/Release/netcoreapp3.1/linux-x64/publish
     - uses: AButler/upload-release-assets@v2.0
       with:
-        files: 'PromFileSdConfigAppender/bin/Release/netcoreapp3.1/linux-x64/publish/**/*'
+        files: 'linux-x64.selfcontained.zip'
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         release-tag: ${{ steps.vars.outputs.tag }}
