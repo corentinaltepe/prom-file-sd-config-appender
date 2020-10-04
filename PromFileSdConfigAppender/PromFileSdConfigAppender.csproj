@@ -10,6 +10,7 @@
     <Title>Prometheus File Service Discovery Configuration Appender</Title>
     <Description>Command line utility to add and remove targets and jobs from Prometheus File Service Discovery configuration file.</Description>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <RepositoryUrl>https://github.com/corentinaltepe/prom-file-sd-config-appender</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
