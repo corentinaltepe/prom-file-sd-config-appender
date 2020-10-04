@@ -7,7 +7,14 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>promsdappender</ToolCommandName>
     <PackageOutputPath>./nupkg</PackageOutputPath>
+    <Title>Prometheus File Service Discovery Configuration Appender</Title>
+    <Description>Command line utility to add and remove targets and jobs from Prometheus File Service Discovery configuration file.</Description>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="LICENSE.txt" Pack="true" PackagePath="$(PackageLicenseFile)"/>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.8.0" />

@@ -25,6 +25,8 @@ jobs:
         dotnet-version: 3.1.402
     - name: Install Dependencies
       run: dotnet restore
+    - name: Copy License
+      run: cp LICENSE PromFileSdConfigAppender/LICENSE.txt
     - name: Publish for Linux
       run: dotnet publish -c Release -r linux-x64
     - name: Publish for Windows
