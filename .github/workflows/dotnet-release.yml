@@ -1,0 +1,13 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Just a test for now
+      run: echo "It's just a test!"
